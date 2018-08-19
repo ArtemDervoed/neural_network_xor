@@ -1,39 +1,19 @@
-from input import Input
-from synaps import Synaps
-from layer import Layer
-import math
+from keras.models import Sequential
+from keras.layers.core import Dense, Dropout, Activation
+from keras.optimizers import SGD
+import numpy as np 
 
-trainingSet = [
-    [0, 0, 0],
-    [0, 1, 1],
-    [1, 0, 1],
-    [1, 1, 0]
-]
+X = np.array([[0,0],[0,1],[1,0],[1,1]])
+y = np.array([[0],[1],[1],[0]])
 
-epochCount = 100
+model = Sequential()
+model.add(Dense(8, input_dim=2))
+model.add(Activation('tanh'))
+model.add(Dense(1))
+model.add(Activation('sigmoid'))
 
-def sigmoid(out):
-    return (1 - out)*out
+sgd = SGD(lr=0.1)
+model.compile(loss='binary_crossentropy', optimizer=sgd)
 
-def calcError(calculatedValue, expectedValue):
-    return math.sqrt(math.pow(expectedValue - calculatedValue, 2)/1)
-
-
-firstInput = Input(1)
-secondInput = Input(0)
-
-firstSynaps = Synaps(firstInput, 0.4)
-secondSynaps = Synaps(secondInput, 0.7)
-
-hiddenLayer = Layer(firstSynaps, secondSynaps)
-
-# for epoch in range(epochCount):
-#     for set in trainingSet:
-result = hiddenLayer.getResult()
-error = calcError(result, 1)
-delta0 = (1 - result) * sigmoid(result)
-
-gradW1 = result * delta0
-
-
-print(gradW1)
+model.fit(X, y, batch_size=1, nb_epoch=1000)
+print(model.predict_proba(X))
